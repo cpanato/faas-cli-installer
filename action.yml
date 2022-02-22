@@ -1,0 +1,56 @@
+# action.yml
+name: install-faas-cli
+description: 'Install faas-cli and put it on your path'
+branding:
+  icon: 'package'
+  color: 'blue'
+# This is pinned to the last major release, we have to bump it for each action version.
+inputs:
+  faas-cli-release:
+    description: 'faas-cli release version to use in the actions.'
+    required: false
+    default: '0.14.1'
+runs:
+  using: "composite"
+  steps:
+    # We verify the version against a SHA **in the published action itself**, not in the GCS bucket.
+    - run: |
+        trap "popd" EXIT
+        mkdir -p $HOME/.faas-cli
+        pushd $HOME/.faas-cli
+        bootstrap_version='0.14.1'
+        expected_bootstrap_version_digest='d34a40c7be087655068e6ec15ce211dfa8382ee2a3b82c60def1c6e026eb219c'
+        curl -L https://github.com/openfaas/faas-cli/releases/download/${bootstrap_version}/faas-cli -o faas-cli
+        shaBootstrap=$(sha256sum faas-cli | cut -d' ' -f1);
+
+        if [[ $shaBootstrap != ${expected_bootstrap_version_digest} ]]; then exit 1; fi
+        chmod +x faas-cli
+        # If the bootstrap and specified `faas-cli` releases are the same, we're done.
+        if [[ ${{ inputs.faas-cli-release }} == ${bootstrap_version} ]]; then exit 0; fi
+
+        semver='^([0-9]+\.){0,2}(\*|[0-9]+)$'
+        if [[ ${{ inputs.faas-cli-release }} =~ $semver ]]; then
+          echo "INFO: Custom faas-cli Version ${{ inputs.faas-cli-release }}"
+        else
+          echo "ERROR: Unable to validate faas-cli version: '${{ inputs.faas-cli-release }}'"
+          exit 1
+        fi
+
+        # Download custom faas-cli
+        curl -L https://github.com/openfaas/faas-cli/releases/download/${{ inputs.faas-cli-release }}/faas-cli -o faas-cli_${{ inputs.faas-cli-release }}
+        shaCustom=$(sha256sum faas-cli_${{ inputs.faas-cli-release }} | cut -d' ' -f1);
+        curl -L https://github.com/openfaas/faas-cli/releases/download/${{ inputs.faas-cli-release }}/faas-cli.sha256 -o faas-cli.sha256
+        expectedSha=$(cat faas-cli.sha256 | cut -d' ' -f1)
+        # same hash means it is the same release
+        if [[ $shaCustom == $expectedSha ]];
+        then
+          rm -f faas-cli faas-cli.sha256
+          mv faas-cli_${{ inputs.faas-cli-release }} faas-cli
+          chmod +x faas-cli
+        else
+          echo "ERROR: Wrong sha for faas-cli: '${{ inputs.faas-cli-release }}'"
+          exit 1
+        fi
+      shell: bash
+    - run:  echo "$HOME/.faas-cli" >> $GITHUB_PATH
+      shell: bash
