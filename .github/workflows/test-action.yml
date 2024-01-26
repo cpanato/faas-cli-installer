@@ -18,7 +18,7 @@ jobs:
       statuses: none
     name: Install faas-cli and test presence in path
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install faas-cli
       uses: ./
     - name: Check install!
@@ -47,7 +47,7 @@ jobs:
       statuses: none
     name: Install Custom faas-cli and test presence in path
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install faas-cli
       uses: ./
       with:
@@ -78,7 +78,7 @@ jobs:
       statuses: none
     name: Try to install a wrong Cosign
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install faas-cli
       uses: ./
       with:
