@@ -12,7 +12,7 @@ Add the following entry to your Github workflow YAML file:
 ```yaml
 uses: cpanato/faas-cli-installer@main
 with:
-  faas-cli-release: '0.14.1' # optional
+  faas-cli-release: '0.16.23' # optional
 ```
 
 Example using a pinned version:
@@ -22,24 +22,14 @@ jobs:
   test_cosign_action:
     runs-on: ubuntu-latest
 
-    permissions:
-      actions: none
-      checks: none
-      contents: none
-      deployments: none
-      issues: none
-      packages: none
-      pull-requests: none
-      repository-projects: none
-      security-events: none
-      statuses: none
+    permissions: {}
 
     name: Install Cosign and test presence in path
     steps:
       - name: Install faas-cli
         uses: cpanato/faas-cli-installer@main
         with:
-          faas-cli-release: '0.14.1'
+          faas-cli-release: '0.16.23' # optional
       - name: Check install!
         run: faas-cli version
 ```
