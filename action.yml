@@ -9,7 +9,7 @@ inputs:
   faas-cli-release:
     description: 'faas-cli release version to use in the actions.'
     required: false
-    default: '0.16.23'
+    default: '0.16.26'
 runs:
   using: "composite"
   steps:
@@ -18,7 +18,7 @@ runs:
         trap "popd" EXIT
         mkdir -p $HOME/.faas-cli
         pushd $HOME/.faas-cli
-        bootstrap_version='0.16.23'
+        bootstrap_version='0.16.26'
         expected_bootstrap_version_digest='1d369ee4037478825fec967367e3d14ee71ec95dae5fae7fcd61d6d6500b4179'
         curl -L https://github.com/openfaas/faas-cli/releases/download/${bootstrap_version}/faas-cli -o faas-cli
         shaBootstrap=$(sha256sum faas-cli | cut -d' ' -f1);
